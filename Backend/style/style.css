@@ -1,0 +1,10 @@
+td{
+    border:2px solid #dee2e6
+}
+/* Example media query for smaller screens */
+@media (max-width: 767px) {
+    #title{
+        display: none;
+    }
+  
+}
