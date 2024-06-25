@@ -2,11 +2,13 @@
 require('include/header.php');
 require('include/sidebar.php');
 require "include/rules_ticket.php";
+include "config.php";
+
 // Default values for pagination
 $records_per_page = isset($_GET['length']) ? intval($_GET['length']) : 10;
 $current_page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $offset = ($current_page - 1) * $records_per_page;
-$user_query = "
+$ticket_query = "
     SELECT 
         t.*, 
         REPLACE(GROUP_CONCAT(u.users_name SEPARATOR ', '), ', ', ',') as users_name
@@ -18,7 +20,7 @@ $user_query = "
         t.ticket_id DESC
     LIMIT $offset, $records_per_page 
 ";
-$user_result = $conn->query($user_query);
+$ticket_result = $conn->query($ticket_query);
 $total_query = "SELECT COUNT(*) as total FROM tbl_ticket";
 $total_result = $conn->query($total_query);
 $total_row = $total_result->fetch_assoc();
@@ -69,7 +71,7 @@ $total_pages = ceil($total_records / $records_per_page);
               <button id="toggleFilterBtn" class="btn btn-secondary mb-2">Show Filters</button>
               <div id="filterContainer" style="display: none;">
                 <div class="row">
-                  <form class="row">
+                  <!-- <form class="row">
                     <div class="form-group col-sm-3">
                       <label for="station_id">Station ID</label>
                       <input class="form-control" type="text" name="station_id" id="station_id" placeholder="Station ID" autocomplete="off" onkeyup="showSuggestions(this.value)">
@@ -147,8 +149,88 @@ $total_pages = ceil($total_records / $records_per_page);
                       <button type="button" id="applyFiltersBtn" class="btn btn-primary">Filter</button>
                       <button type="reset" class="btn btn-danger" id="filterResetBtn">Reset</button>
                     </div>
+                  </form> -->
+                  <form id="filterForm" class="row">
+                    <div class="form-group col-sm-3">
+                      <label for="station_id">Station ID</label>
+                      <!-- <input class="form-control" type="text" name="station_id" id="station_id"> -->
+                      <input class="form-control" type="text" name="station_id" id="station_id" autocomplete="off" onkeyup="showSuggestions(this.value)">
+                      <div id="suggestion_dropdown" class="dropdown-content"></div>
+                    </div>
+                    <div class="form-group col-sm-3">
+                      <label for="issue_type">Issue Type</label>
+                      <select class="form-control" name="issue_type" id="issue_type">
+                        <option value="">Issue Type</option>
+                        <option value="Hardware">Hardware</option>
+                        <option value="Software">Software</option>
+                        <option value="Network">Network</option>
+                        <option value="Dispensor">Dispensor</option>
+                        <option value="Unassigned">Unassigned</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-sm-3">
+                      <label for="priority">Priority</label>
+                      <select name="priority" id="priority" class="form-control">
+                        <option value="">Priority</option>
+                        <option value="CAT Hardware">CAT Hardware</option>
+                        <option value="CAT 1*">CAT 1*</option>
+                        <option value="CAT 2*">CAT 2*</option>
+                        <option value="CAT 3*">CAT 3*</option>
+                        <option value="CAT 4*">CAT 4*</option>
+                        <option value="CAT 4 Report*">CAT 4 Report*</option>
+                        <option value="CAT 5*">CAT 5*</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-sm-3">
+                      <label for="status">Status</label>
+                      <select name="status" id="status" class="form-control" style="width: 100%;">
+                        <option value="">Status</option>
+                        <option value="Open">Open</option>
+                        <option value="On Hold">On Hold</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Pending Vender">Pending Vendor</option>
+                        <option value="Close">Closed</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-sm-3">
+                      <label for="users_id">Assign</label>
+                      <select name="users_id" id="users_id" class="form-control">
+                        <option value="">Assign</option>
+                        <?php
+                        // Fetch users with status 1 from database
+                        $user_query = "SELECT users_id, users_name FROM tbl_users WHERE status = 1";
+                        $user_result = $conn->query($user_query);
+                        if ($user_result && $user_result->num_rows > 0) {
+                          while ($row = $user_result->fetch_assoc()) {
+                            echo "<option value='" . $row['users_id'] . "'>" . $row['users_name'] . "</option>";
+                          }
+                        } else {
+                          echo "<option value=''>No users found with status 1</option>";
+                        }
+                        ?>
+                      </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="ticket_open_from">Ticket Open From</label>
+                      <input type="date" name="ticket_open_from" id="ticket_open_from" class="form-control">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="ticket_open_to">Ticket Open To</label>
+                      <input type="date" name="ticket_open_to" id="ticket_open_to" class="form-control">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="ticket_close_from">Ticket Close From</label>
+                      <input type="date" name="ticket_close_from" id="ticket_close_from" class="form-control">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="ticket_close_to">Ticket Close To</label>
+                      <input type="date" name="ticket_close_to" id="ticket_close_to" class="form-control">
+                    </div>
+                    <div class="form-group col-md-12">
+                      <button type="button" class="btn btn-primary" onclick="filterTickets()">Filter</button>
+                      <button type="reset" class="btn btn-danger" id="filterResetBtn">Clear</button>
+                    </div>
                   </form>
-
 
                 </div>
               </div>
@@ -156,7 +238,7 @@ $total_pages = ceil($total_records / $records_per_page);
 
 
 
-            <script>
+            <!-- <script>
               $(document).ready(function() {
                 $("#applyFiltersBtn").click(function() {
 
@@ -203,7 +285,7 @@ $total_pages = ceil($total_records / $records_per_page);
                   }
                 });
               });
-            </script>
+            </script> -->
             <!-- /filter -->
             <div class="card-header">
               <div class="row">
@@ -249,8 +331,8 @@ $total_pages = ceil($total_records / $records_per_page);
                 <tbody id="ticketTableBody">
                   <?php
                   $i = $offset + 1;
-                  if ($user_result->num_rows > 0) {
-                    while ($row = $user_result->fetch_assoc()) {
+                  if ($ticket_result->num_rows > 0) {
+                    while ($row = $ticket_result->fetch_assoc()) {
                       echo "<tr>";
                       echo "<td>" . $i++ . "</td>";
                       //condition for button edit and delete
@@ -328,12 +410,27 @@ $total_pages = ceil($total_records / $records_per_page);
 </div>
 <!-- /.content-wrapper -->
 <script>
+  function filterTickets() {
+    $.ajax({
+      url: 'retrieveData.php',
+      type: 'POST',
+      data: $('#filterForm').serialize(),
+      success: function(data) {
+        $('#ticketTableBody').html(data);
+      },
+      error: function() {
+        alert('An error occurred while filtering tickets.');
+      }
+    });
+  }
+</script>
+<script>
   // Function to handle pagination link clicks
-  $(document).on("click", ".page-link", function(e) {
-    e.preventDefault();
-    var page = $(this).data("page-number");
-    loadTickets(page);
-  });
+  // $(document).on("click", ".page-link", function(e) {
+  //   e.preventDefault();
+  //   var page = $(this).data("page-number");
+  //   loadTickets(page);
+  // });
 
   // Function to toggle filter visibility
   $("#toggleFilterBtn").on("click", function() {

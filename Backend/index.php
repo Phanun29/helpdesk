@@ -282,7 +282,7 @@ $conn->close();
               </div>
             </div>
           </div>
-          <div class="card-body table-responsive p-0" style="height: 300px;">
+          <div class="card-body table-responsive p-0" >
             <table id="myTable" class="table table-head-fixed text-nowrap">
               <thead>
                 <tr>
