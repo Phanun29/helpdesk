@@ -12,11 +12,11 @@ $result_status = $conn->query($query_status);
 
 // Initialize counts
 $status_counts = [
-  'open' => 0,
-  'on_hold' => 0,
-  'in_progress' => 0,
-  'pending_vender' => 0,
-  'close' => 0
+  'Open' => 0,
+  'On Hold' => 0,
+  'In Progress' => 0,
+  'Pending Vender' => 0,
+  'Close' => 0
 ];
 
 // Populate counts from the database result
@@ -133,7 +133,7 @@ $conn->close();
               <div class="col-lg-4 col-4">
                 <div class="small-box bg-info">
                   <div class="inner">
-                    <h3><?php echo $status_counts['open']; ?></h3>
+                    <h3><?php echo $status_counts['Open']; ?></h3>
                     <p>Open</p>
                   </div>
                   <div class="icon">
@@ -146,7 +146,7 @@ $conn->close();
               <div class="col-lg-4 col-4">
                 <div class="small-box bg-danger">
                   <div class="inner">
-                    <h3><?php echo $status_counts['on_hold']; ?></h3>
+                    <h3><?php echo $status_counts['On Hold']; ?></h3>
                     <p>On Hold</p>
                   </div>
                   <div class="icon">
@@ -159,7 +159,7 @@ $conn->close();
               <div class="col-lg-4 col-4">
                 <div class="small-box bg-warning">
                   <div class="inner">
-                    <h3><?php echo $status_counts['in_progress']; ?></h3>
+                    <h3><?php echo $status_counts['In Progress']; ?></h3>
                     <p>In Progress</p>
                   </div>
                   <div class="icon">
@@ -173,7 +173,7 @@ $conn->close();
               <div class="col-lg-8 col-6">
                 <div class="small-box bg-primary">
                   <div class="inner">
-                    <h3><?php echo $status_counts['pending_vender']; ?></h3>
+                    <h3><?php echo $status_counts['Pending Vender']; ?></h3>
                     <p>Pending Vendor</p>
                   </div>
                   <div class="icon">
@@ -186,7 +186,7 @@ $conn->close();
               <div class="col-lg-4 col-6">
                 <div class="small-box bg-success">
                   <div class="inner">
-                    <h3><?php echo $status_counts['close']; ?></h3>
+                    <h3><?php echo $status_counts['Close']; ?></h3>
                     <p>Close</p>
                   </div>
                   <div class="icon">
@@ -268,9 +268,6 @@ $conn->close();
           <!-- /.Section Start Priority -->
 
         </div>
-
-
-
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">Ticket</h3>
@@ -295,11 +292,9 @@ $conn->close();
                   <th>Station Name</th>
                   <th>Station Type</th>
                   <th>Description</th>
-
                   <th>Type</th>
                   <th>Priority</th>
                   <th>Status</th>
-
                   <th>Ticket Open</th>
                   <th>Ticket Close</th>
                   <th>Comment</th>

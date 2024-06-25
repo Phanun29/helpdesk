@@ -2,6 +2,7 @@
 require('include/header.php');
 require('include/sidebar.php');
 include "config.php";
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Retrieve form data
     $id = $_POST['id']; // The primary key of the station
@@ -86,8 +87,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // exit();
     }
 }
-
-
 ?>
 
 <div class="content-wrapper">
@@ -107,14 +106,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="card">
                     <div class="card-body">
                         <form action="" method="POST">
-                            <input type="hidden" name="id" value="<?php echo $station['id']; ?>">
+                            <input type="hidden" name="id" value="<?php echo isset($station['id']) ? $station['id'] : ''; ?>">
                             <div class="form-group">
                                 <label for="station_id">Station ID</label>
-                                <input type="text" class="form-control" id="station_id" name="station_id" value="<?php echo $station['station_id'] ?>" required>
+                                <input type="text" class="form-control" id="station_id" name="station_id" value="<?php echo isset($station['station_id']) ? $station['station_id'] : ''; ?>" required>
                             </div>
                             <div class="form-group">
                                 <label for="station_name">Station Name</label>
-                                <input type="text" class="form-control" id="station_name" name="station_name" value="<?php echo $station['station_name']?>" required>
+                                <input type="text" class="form-control" id="station_name" name="station_name" value="<?php echo isset($station['station_name']) ? $station['station_name'] : ''; ?>" required>
                             </div>
                             <div class="form-group">
                                 <label for="station_type">Station Type</label>
@@ -123,7 +122,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <option value="DoDo" <?php echo (isset($station['station_type']) && $station['station_type'] == 'DoDo') ? 'selected' : ''; ?>>DoDo</option>
                                 </select>
                             </div>
-
                             <button type="submit" class="btn btn-primary">Update</button>
                         </form>
                     </div>

@@ -1,7 +1,3 @@
-
-
-
-
 <!-- Remaining HTML and JavaScript code remains the same -->
 
 
@@ -322,11 +318,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   <div class="form-group col-sm-4">
                     <label for="status">Status</label>
                     <select name="status" id="status" class="form-control select2bs4" style="width: 100%;">
-                      <option value="open">Open</option>
-                      <option value="on_hold">On Hold</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="pending_vender">Pending Vendor</option>
-                      <option value="closed">Closed</option>
+                      <option value="Open">Open</option>
+                      <option value="On Hold">On Hold</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Pending Vender">Pending Vendor</option>
+                      <option value="Close">Close</option>
                     </select>
 
                   </div>
