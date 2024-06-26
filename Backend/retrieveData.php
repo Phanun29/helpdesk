@@ -79,7 +79,8 @@ if ($result->num_rows > 0) {
             echo "<td>" . $row['station_type'] . "</td>";
             echo "<td>" . $row['issue_description'] . "</td>";
             echo "<td><button class='btn text-primary link-underline-success' onclick='showImage(\"" . $row['issue_image'] . "\")'>click</button></td>";
-            echo "<td>" . $row['issue_type'] . "</td>";
+            // echo "<td>" . $row['issue_type'] . "</td>";
+            echo "<td>" . $issue_type . "</td>";
             echo "<td>" . $row['priority'] . "</td>";
             echo "<td>" . $row['status'] . "</td>";
             echo "<td>" . $row['users_name'] . "</td>";
