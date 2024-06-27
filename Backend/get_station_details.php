@@ -16,3 +16,22 @@ if (isset($_POST['station_id'])) {
         echo json_encode(array('success' => false));
     }
 }
+?>
+<?php
+// if ($_SERVER["REQUEST_METHOD"] == "POST") {
+//     // Get the value of the station_id input field
+//     $station_id = $_POST['station_id'];
+
+//     // Use the station_id value as needed
+//     echo "Station ID: " . htmlspecialchars($station_id);
+
+//     // Example: You can use the $station_id in your database query or other logic
+//     // $query = "SELECT * FROM your_table WHERE station_id = ?";
+//     // $stmt = $conn->prepare($query);
+//     // $stmt->bind_param("s", $station_id);
+//     // $stmt->execute();
+//     // $result = $stmt->get_result();
+//     // ... handle the result
+// }
+?>
+

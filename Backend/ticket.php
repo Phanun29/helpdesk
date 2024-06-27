@@ -198,16 +198,44 @@ $total_pages = ceil($total_records / $records_per_page);
                         <option value="">Assign</option>
                         <?php
                         // Fetch users with status 1 from database
-                        $user_query = "SELECT users_id, users_name FROM tbl_users WHERE status = 1";
-                        $user_result = $conn->query($user_query);
-                        if ($user_result && $user_result->num_rows > 0) {
-                          while ($row = $user_result->fetch_assoc()) {
-                            echo "<option value='" . $row['users_id'] . "'>" . $row['users_name'] . "</option>";
+                        // $user_query = "SELECT users_id, users_name FROM tbl_users WHERE status = 1";
+                        // $user_result = $conn->query($user_query);
+                        // if ($user_result && $user_result->num_rows > 0) {
+                        //   while ($row = $user_result->fetch_assoc()) {
+                        //     echo "<option value='" . $row['users_id'] . "'>" . $row['users_name'] . "</option>";
+                        //   }
+                        // } else {
+                        //   echo "<option value=''>No users found with status 1</option>";
+                        // }
+
+                        // Fetch users with status 1 from database
+                        $user_query1 = "SELECT users_id, users_name FROM tbl_users WHERE status = 1";
+                        $user_result1 = $conn->query($user_query1);
+
+                        // Initialize an array to store users
+                        $users = [];
+
+                        if ($user_result1 && $user_result1->num_rows > 0) {
+                          while ($row1 = $user_result1->fetch_assoc()) {
+                            $users[] = $row1;
                           }
+                        }
+
+                        // Check if there are users to display
+                        if (!empty($users)) {
+                          // Iterate through users array using a for loop
+                          for ($i = 0; $i < count($users); $i++) {
+                            echo "<option value='" . $users[$i]['users_id'] . "'>" . $users[$i]['users_name'] . "</option>";
+                          }
+
+                          // Add the "end data" option
+                          echo "<option value=''>End Data</option>";
                         } else {
                           echo "<option value=''>No users found with status 1</option>";
                         }
                         ?>
+
+
                       </select>
                     </div>
                     <div class="form-group col-md-3">

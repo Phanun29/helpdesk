@@ -1,13 +1,6 @@
-<!-- Remaining HTML and JavaScript code remains the same -->
-
-
-
-
 <?php
 require('include/header.php');
 require('include/sidebar.php');
-?>
-<?php
 include "config.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -99,52 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 // $conn->close();
 ?>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<!-- ticket close -->
-<script>
-  $(document).ready(function() {
-    $('#status').change(function() {
-      var status = $(this).val();
-      if (status === 'close') {
-        var currentDateTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
-        $('#ticket_close').val(currentDateTime);
-        $('#ticket_close_group').show();
-      } else {
-        $('#ticket_close').val('');
-        $('#ticket_close_group').hide();
-      }
-    });
 
-    // Trigger change event to set the correct visibility on page load
-    $('#status').trigger('change');
-  });
-</script>
-
-
-<script>
-  $(document).ready(function() {
-    $('#station_id').blur(function() {
-      var station_id = $(this).val();
-      $.ajax({
-        url: 'get_station_details.php',
-        type: 'POST',
-        data: {
-          station_id: station_id
-        },
-        dataType: 'json',
-        success: function(response) {
-          if (response.success) {
-            $('#station_name').val(response.station_name);
-            $('#station_type').val(response.station_type);
-          } else {
-            //  alert("Station ID not found.");
-            $('#station_name').val('');
-            $('#station_type').val('');
-          }
-        }
-      });
-    });
-  });
-</script>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
   <!-- Main content -->
@@ -175,12 +123,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <div class="content-header">
     <div class="container-fluid ml-2">
       <div class="row mb-2">
-
-
         <div class="col-sm-6">
           <a href="users.php" class="btn btn-primary">BACK</a>
         </div>
-
       </div>
     </div>
   </div>
@@ -203,51 +148,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div id="suggestion_dropdown" class="dropdown-content"></div>
                   </div>
 
-                  <script>
-                    function showSuggestions(str) {
-                      if (str == "") {
-                        document.getElementById("suggestion_dropdown").innerHTML = "";
-                        return;
-                      } else {
-                        var xmlhttp = new XMLHttpRequest();
-                        xmlhttp.onreadystatechange = function() {
-                          if (this.readyState == 4 && this.status == 200) {
-                            document.getElementById("suggestion_dropdown").innerHTML = this.responseText;
-                          }
-                        };
-                        xmlhttp.open("GET", "get_suggestions.php?q=" + str, true);
-                        xmlhttp.send();
-                      }
-                    }
 
-                    function selectSuggestion(station_id) {
-                      document.getElementById("station_id").value = station_id;
-                      document.getElementById("station_id").value = station_id;
-                      document.getElementById("suggestion_dropdown").innerHTML = "";
-                    }
-                  </script>
-
-                  <style>
-                    .dropdown-content {
-                      position: absolute;
-                      background-color: #f9f9f9;
-                      min-width: 160px;
-                      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-                      z-index: 1;
-                    }
-
-                    .dropdown-content p {
-                      color: black;
-                      padding: 12px 16px;
-                      text-decoration: none;
-                      display: block;
-                      cursor: pointer;
-                    }
-
-                    .dropdown-content p:hover {
-                      background-color: #f1f1f1;
-                    }
-                  </style>
 
                   <div class="form-group col-sm-4">
                     <label for="station_name">Station Name</label>
@@ -276,8 +177,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                   <div class="form-group col-sm-4">
                     <label for="issue_type">Issue Type</label>
-
-                    <select name="issue_type[]" class="form-control" id="choices-multiple-remove-button" placeholder="Select upto 2 tags" multiple>
+                    <select name="issue_type[]" class="form-control" id="choices-multiple-remove-button" placeholder="Select upto 2 tags" multiple required>
                       <option value="Hardware">Hardware</option>
                       <option value="Software">Software</option>
                       <option value="Network">Network</option>
@@ -304,8 +204,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="row">
                   <div class="form-group col-sm-4">
                     <label for="priority">Priority</label>
-                    <select name="priority" id="priority" class="form-control select2bs4" style="width: 100%;">
-
+                    <select name="priority" id="priority" class="form-control select2bs4" style="width: 100%;" required>
                       <option value="CAT Hardware">CAT Hardware</option>
                       <option value="CAT 1*">CAT 1*</option>
                       <option value="CAT 2*">CAT 2*</option>
@@ -317,19 +216,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   </div>
                   <div class="form-group col-sm-4">
                     <label for="status">Status</label>
-                    <select name="status" id="status" class="form-control select2bs4" style="width: 100%;">
+                    <select name="status" id="status" class="form-control select2bs4" style="width: 100%;" required>
                       <option value="Open">Open</option>
                       <option value="On Hold">On Hold</option>
                       <option value="In Progress">In Progress</option>
                       <option value="Pending Vender">Pending Vendor</option>
                       <option value="Close">Close</option>
                     </select>
-
                   </div>
-
                   <div class="form-group col-sm-4">
                     <label for="users_id">Assign</label>
-                    <select name="users_id[]" class="" id="choices-multiple-remove-button" placeholder="Select upto 2 tags" multiple>
+                    <select name="users_id[]" class="" id="choices-multiple-remove-button" placeholder="Select upto 2 tags" multiple required>
                       <?php
                       $user_query = "SELECT users_id, users_name FROM tbl_users WHERE status = 1";
                       $user_result = $conn->query($user_query);
@@ -386,6 +283,85 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <!-- suggestion -->
+<!-- <script>
+  function showSuggestions(str) {
+    if (str == "") {
+      document.getElementById("suggestion_dropdown").innerHTML = "";
+      return;
+    } else {
+      var xmlhttp = new XMLHttpRequest();
+      xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          document.getElementById("suggestion_dropdown").innerHTML = this.responseText;
+        }
+      };
+      xmlhttp.open("GET", "get_suggestions.php?q=" + str, true);
+      xmlhttp.send();
+    }
+  }
+</script> -->
+<!-- Initialization script -->
+<script>
+  $(document).ready(function() {
+    $('.select2').select2();
+  });
+</script>
+<!-- select user  -->
+<script>
+  $(document).ready(function() {
+    $('.select2bs4').select2({
+      theme: 'bootstrap4'
+    });
+  });
+</script>
+<!-- ticket close -->
+<script>
+  $(document).ready(function() {
+    $('#status').change(function() {
+      var status = $(this).val();
+      if (status === 'close') {
+        var currentDateTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        $('#ticket_close').val(currentDateTime);
+        $('#ticket_close_group').show();
+      } else {
+        $('#ticket_close').val('');
+        $('#ticket_close_group').hide();
+      }
+    });
+
+    // Trigger change event to set the correct visibility on page load
+    $('#status').trigger('change');
+  });
+</script>
+
+<!-- auto fill station -->
+<script>
+  $(document).ready(function() {
+    $('#station_id').blur(function() {
+      var station_id = $(this).val();
+      $.ajax({
+        url: 'get_station_details.php',
+        type: 'POST',
+        data: {
+          station_id: station_id
+        },
+        dataType: 'json',
+        success: function(response) {
+          if (response.success) {
+            $('#station_name').val(response.station_name);
+            $('#station_type').val(response.station_type);
+          } else {
+            //  alert("Station ID not found.");
+            $('#station_name').val('');
+            $('#station_type').val('');
+          }
+        }
+      });
+    });
+  });
+</script>
+
+<!-- suggestion station id and station name -->
 <script>
   function showSuggestions(str) {
     if (str == "") {
@@ -402,23 +378,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       xmlhttp.send();
     }
   }
-</script>
-<!-- Initialization script -->
-<script>
-  $(document).ready(function() {
-    $('.select2').select2();
-  });
-</script>
-<!-- select user  -->
-<script>
-  $(document).ready(function() {
-    $('.select2bs4').select2({
-      theme: 'bootstrap4'
-    });
-  });
-</script>
 
+  function selectSuggestion(station_id) {
+    document.getElementById("station_id").value = station_id;
+    // document.getElementById("station_id").value = station_id;
+    document.getElementById("suggestion_dropdown").innerHTML = "";
+  }
+</script>
+<style>
+  .dropdown-content {
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+  }
 
+  .dropdown-content p {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+  }
+
+  .dropdown-content p:hover {
+    background-color: #f1f1f1;
+  }
+</style>
 <?php
 require('include/footer.php');
 ?>

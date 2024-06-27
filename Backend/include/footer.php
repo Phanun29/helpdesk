@@ -278,7 +278,7 @@
     }
 
     function selectSuggestion(station_id) {
-      document.getElementById("station_id").value = station_id;
+      // document.getElementById("station_id").value = station_id;
       document.getElementById("station_id").value = station_id;
       document.getElementById("suggestion_dropdown").innerHTML = "";
     }

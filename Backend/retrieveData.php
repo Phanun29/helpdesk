@@ -1,7 +1,17 @@
 <?php
 // Include your database connection file (e.g., config.php)
 include "config.php";
-
+session_start();
+$email = $_SESSION['email'];
+$password = $_SESSION['password'];
+if ($email != false && $password != false) {
+    $sql = "SELECT * FROM tbl_users WHERE email = '$email'";
+    $run_Sql = mysqli_query($conn, $sql);
+    if ($run_Sql) {
+        $fetch_info = mysqli_fetch_assoc($run_Sql);
+    }
+}
+include "include/rules_ticket.php";
 // Initialize variables for filter criteria
 $station_id = isset($_POST['station_id']) ? $_POST['station_id'] : '';
 $issue_type = isset($_POST['issue_type']) ? $_POST['issue_type'] : '';
@@ -53,42 +63,47 @@ $query .= " ORDER BY t.ticket_id DESC"; // Example order by ticket_id, adjust as
 
 $result = $conn->query($query);
 // Prepare the HTML response
+$i =  1;
 if ($result->num_rows > 0) {
-    $i = 1;
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            echo "<tr>";
-            echo "<td>" . $i++ . "</td>";
-
+    while ($row = $result->fetch_assoc()) {
+        echo "<tr>";
+        echo "<td>" . $i++ . "</td>";
+        //condition for button edit and delete
+        if ($canEditStation == 0 &  $canDeleteStation == 0) {
+            echo " <td style='display:none;'></td>";
+        } else {
             echo "<td>";
+            if ($row['ticket_close'] === null) {
 
-            // Edit button if user has permission
-
-            echo "<a href='edit_ticket.php?id=" . $row['id'] . "' class='btn btn-primary'><i class='fa-solid fa-pen-to-square'></i></a> ";
-
-
+                // Edit button if user has permission
+                if ($canEditStation) {
+                    echo "<a href='edit_ticket.php?id=" . $row['id'] . "' class='btn btn-primary'><i class='fa-solid fa-pen-to-square'></i></a> ";
+                }
+            }
             // Delete button if user has permission
-
-            echo "<a href='delete_ticket.php?id=" . $row['id'] . "' class='btn btn-danger' onclick='return confirm(\"Are you sure you want to delete this item?\");'><i class='fa-solid fa-trash'></i></a>";
-
+            if ($canDeleteStation) {
+                echo "<a href='delete_ticket.php?id=" . $row['id'] . "' class='btn btn-danger' onclick='return confirm(\"Are you sure you want to delete this item?\");'><i class='fa-solid fa-trash'></i></a>";
+            }
             echo "</td>";
-
-            echo "<td>" . $row['ticket_id'] . "</td>";
-            echo "<td>" . $row['station_id'] . "</td>";
-            echo "<td>" . $row['station_name'] . "</td>";
-            echo "<td>" . $row['station_type'] . "</td>";
-            echo "<td>" . $row['issue_description'] . "</td>";
-            echo "<td><button class='btn text-primary link-underline-success' onclick='showImage(\"" . $row['issue_image'] . "\")'>click</button></td>";
-            // echo "<td>" . $row['issue_type'] . "</td>";
-            echo "<td>" . $issue_type . "</td>";
-            echo "<td>" . $row['priority'] . "</td>";
-            echo "<td>" . $row['status'] . "</td>";
-            echo "<td>" . $row['users_name'] . "</td>";
-            echo "<td>" . $row['ticket_open'] . "</td>";
-            echo "<td>" . $row['ticket_close'] . "</td>";
-            echo "<td>" . $row['comment'] . "</td>";
-            echo "</tr>";
         }
+        echo "<td>" . $row['ticket_id'] . "</td>";
+        echo "<td>" . $row['station_id'] . "</td>";
+        echo "<td>" . $row['station_name'] . "</td>";
+        echo "<td>" . $row['station_type'] . "</td>";
+        echo "<td>" . $row['issue_description'] . "</td>";
+        echo "<td><button class='btn text-primary link-underline-success' onclick='showImage(\"" . $row['issue_image'] . "\")'>click</button></td>";
+        if ($issue_type == null) {
+            echo "<td>" . $row['issue_type'] . "</td>";
+        } else {
+            echo "<td>" . $issue_type . "</td>";
+        }
+        echo "<td>" . $row['priority'] . "</td>";
+        echo "<td>" . $row['status'] . "</td>";
+        echo "<td>" . $row['users_name'] . "</td>";
+        echo "<td>" . $row['ticket_open'] . "</td>";
+        echo "<td>" . $row['ticket_close'] . "</td>";
+        echo "<td>" . $row['comment'] . "</td>";
+        echo "</tr>";
     }
 } else {
     echo "<tr><td colspan='15' class='text-center'>No tickets found</td></tr>";
