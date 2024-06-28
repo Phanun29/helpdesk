@@ -70,7 +70,7 @@ $conn->close();
             <div class="card-header">
               <h3 class="card-title">Create Station</h3>
             </div>
-            <form method="POST" id="quickForm" novalidate="novalidate">
+            <form method="POST" >
               <div class="card-body">
                 <div class="form-group">
                   <label for="exampleInputStatioID">Station ID</label>
@@ -83,6 +83,7 @@ $conn->close();
                 <div class="form-group">
                   <label>Station Type</label>
                   <select name="station_type" class="form-control select2bs4" style="width: 100%;" required>
+                    <option value="">Select</option>
                     <option value="CoCo">CoCo</option>
                     <option value="DoDo">DoDO</option>
                   </select>

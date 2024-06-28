@@ -188,7 +188,7 @@ $total_pages = ceil($total_records / $records_per_page);
                         <option value="Open">Open</option>
                         <option value="On Hold">On Hold</option>
                         <option value="In Progress">In Progress</option>
-                        <option value="Pending Vender">Pending Vendor</option>
+                        <option value="Pending Vendor">Pending Vendor</option>
                         <option value="Close">Closed</option>
                       </select>
                     </div>
@@ -374,19 +374,22 @@ $total_pages = ceil($total_records / $records_per_page);
                           if ($canEditStation) {
                             echo "<a href='edit_ticket.php?id=" . $row['id'] . "' class='btn btn-primary'><i class='fa-solid fa-pen-to-square'></i></a> ";
                           }
+                          if ($canDeleteStation) {
+                            echo "<a href='delete_ticket.php?id=" . $row['id'] . "' class='btn btn-danger' onclick='return confirm(\"Are you sure you want to delete this item?\");'><i class='fa-solid fa-trash'></i></a>";
+                          }
                         }
                         // Delete button if user has permission
-                        if ($canDeleteStation) {
-                          echo "<a href='delete_ticket.php?id=" . $row['id'] . "' class='btn btn-danger' onclick='return confirm(\"Are you sure you want to delete this item?\");'><i class='fa-solid fa-trash'></i></a>";
-                        }
+
                         echo "</td>";
                       }
-                      echo "<td>" . $row['ticket_id'] . "</td>";
+                      echo "<td><button class='btn btn-link' onclick='showTicketDetails(" . json_encode($row) . ")'>" . $row['ticket_id'] . "</button></td>";
                       echo "<td>" . $row['station_id'] . "</td>";
                       echo "<td>" . $row['station_name'] . "</td>";
                       echo "<td>" . $row['station_type'] . "</td>";
                       echo "<td>" . $row['issue_description'] . "</td>";
-                      echo "<td><button class='btn text-primary link-underline-success' onclick='showImage(\"" . $row['issue_image'] . "\")'>click</button></td>";
+                      //    echo "<td><button class='btn text-primary link-underline-success' onclick='showImage(\"" . $row['issue_image'] . "\")'>click</button></td>";
+                      // Make Image clickable to show in a popup
+                      echo "<td><button class='btn btn-link' onclick='showImage(\"" . $row['issue_image'] . "\")'>Click to View</button></td>";
                       echo "<td>" . $row['issue_type'] . "</td>";
                       echo "<td>" . $row['priority'] . "</td>";
                       echo "<td>" . $row['status'] . "</td>";
@@ -401,7 +404,99 @@ $total_pages = ceil($total_records / $records_per_page);
                   }
                   ?>
               </table>
+              <!-- model ticket details -->
+              <div class="modal fade" id="ticketModal" tabindex="-1" role="dialog" aria-labelledby="ticketModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="ticketModalLabel">Ticket Details</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <table class="table p-0">
+                        <tr>
+                          <td class="p-1 ">Ticket ID:</td>
+                          <td class="p-1"><span id="modalTicketId"></span></td>
+                        </tr>
+                        <tr>
+                          <td class="p-1">Station ID:</< /td>
+                          <td class="p-1"><span id="modalStationId"></span></td>
+                        </tr>
+                        <tr>
+                          <td class="p-1">Station Name:</td>
+                          <td class="p-1"><span id="modalStationName"></span></td>
+                        </tr>
+                        <tr>
+                          <td class="p-1">Station Type:</td>
+                          <td class="p-1"><span id="modalStationType"></span></td>
+                        </tr>
+                        <tr>
+                          <td class="p-1">Description:</td>
+                          <td class="p-1"><span id="modalDescription"></span></td>
+                        </tr>
+                        <tr>
+                          <td class="p-1">Issue Type:</td>
+                          <td class="p-1"><span id="modalIssueType"></span></td>
+                        </tr>
+                        <tr>
+                          <td class="p-1">Priority:</td>
+                          <td class="p-1"><span id="modalPriority"></span></td>
+                        </tr>
+                        <tr>
+                          <td class="p-1">Status:</td>
+                          <td class="p-1"> <span id="modalStatus"></span></td>
+                        </tr>
+                        <tr>
+                          <td class="p-1">Assign:</td>
+                          <td class="p-1"> <span id="modalAssign"></span></td>
+                        </tr>
+                        <tr>
+                          <td class="p-1">Ticket Open:</td>
+                          <td class="p-1"> <span id="modalTicketOpen"></span></td>
+                        </tr>
+                        <tr>
+                          <td class="p-1">Ticket Close:</td>
+                          <td class="p-1"> <span id="modalTicketClose"></span></td>
+                        </tr>
+                        <tr>
+                          <td class="p-1">Comment:</td>
+                          <td> <span id="modalComment"></span></td>
+                        </tr>
+                      </table>
+
+
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- /model ticket details -->
+              <!-- Image Modal -->
+              <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="imageModalLabel">Image</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <img id="imageToShow" src="" class="img-fluid" alt="Image">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- /Image Modal -->
               <br>
+              <!-- pagination -->
               <div class="row ml-1">
                 <div class="col-sm-12 col-md-5">
                   <div class="dataTables_info" id="dataTable_info" role="status" aria-live="polite">
@@ -426,6 +521,12 @@ $total_pages = ceil($total_records / $records_per_page);
                     </ul>
                   </div>
                 </div>
+
+                <script>
+                  document.getElementById('entriesPerPage').addEventListener('change', function() {
+                    window.location.href = '?page=1&length=' + this.value;
+                  });
+                </script>
               </div>
 
             </div>
@@ -477,6 +578,35 @@ $total_pages = ceil($total_records / $records_per_page);
     // Your implementation to show the image
   }
 </script>
+
+
+<!-- pop up details ticket -->
+<script>
+  function showTicketDetails(ticket) {
+    document.getElementById('modalTicketId').textContent = ticket.ticket_id;
+    document.getElementById('modalStationId').textContent = ticket.station_id;
+    document.getElementById('modalStationName').textContent = ticket.station_name;
+    document.getElementById('modalStationType').textContent = ticket.station_type;
+    document.getElementById('modalDescription').textContent = ticket.issue_description;
+    document.getElementById('modalIssueType').textContent = ticket.issue_type;
+    document.getElementById('modalPriority').textContent = ticket.priority;
+    document.getElementById('modalStatus').textContent = ticket.status;
+    document.getElementById('modalAssign').textContent = ticket.users_name;
+    document.getElementById('modalTicketOpen').textContent = ticket.ticket_open;
+    document.getElementById('modalTicketClose').textContent = ticket.ticket_close;
+    document.getElementById('modalComment').textContent = ticket.comment;
+
+    $('#ticketModal').modal('show');
+  }
+
+  function showImage(imageUrl) {
+    // Implement your image popup display logic here
+    // Example:
+    $('#imageModal').modal('show');
+    $('#imageToShow').attr('src', imageUrl);
+  }
+</script>
+
 <?php
 require('include/footer.php');
 ?>

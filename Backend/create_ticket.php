@@ -8,18 +8,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $issue_description = $_POST['issue_description'];
   $issue_type = implode(', ', $_POST['issue_type']); // Convert array to string without spaces
   $priority = $_POST['priority'];
-  $status = $_POST['status'];
-  $comment = $_POST['comment'];
+
   $users_id = isset($_POST['users_id']) ? implode(',', array_map('trim', $_POST['users_id'])) : ''; // Convert array to string without spaces
 
   date_default_timezone_set('Asia/Bangkok');
   $ticket_open = date('Y-m-d H:i:s');
-  $ticket_close = NULL;
-
-  // Check if the status is 'close' and set ticket_close
-  if ($status == 'closed') {
-    $ticket_close = date('Y-m-d H:i:s');
-  }
 
   // Validate station_id
   $station_check_query = "SELECT station_name, station_type FROM tbl_station WHERE station_id = ?";
@@ -76,20 +69,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Convert the array of image paths to a comma-separated string
     $issue_image_paths = implode(',', $uploaded_images);
 
-    // Adjust the SQL to handle ticket_close being NULL or not
-    $sql = "INSERT INTO tbl_ticket (ticket_id, station_id, station_name, station_type, issue_description, issue_image, issue_type, priority, status, comment, users_id, ticket_open, ticket_close) 
-                VALUES ('$ticket_id', '$station_id', '$station_name', '$station_type', '$issue_description', '$issue_image_paths', '$issue_type', '$priority', '$status', '$comment', '$users_id', '$ticket_open', " . ($ticket_close ? "'$ticket_close'" : "NULL") . ")";
+    $sql = "INSERT INTO tbl_ticket (ticket_id, station_id, station_name, station_type, issue_description, issue_image, issue_type, priority, users_id, ticket_open, ticket_close) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    if ($conn->query($sql) === TRUE) {
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sisssssssss", $ticket_id, $station_id, $station_name, $station_type, $issue_description, $issue_image_paths, $issue_type, $priority, $users_id, $ticket_open, $ticket_close);
+
+    if ($stmt->execute()) {
       $_SESSION['success_message'] = "New ticket created successfully";
     } else {
-      $_SESSION['error_message'] = "Error: " . $conn->error;
+      $_SESSION['error_message'] = "Error: " . $stmt->error;
     }
+    $stmt->close();
   }
   // header('Location: ' . $_SERVER['REQUEST_URI']);
   // exit();
 }
-// $conn->close();
+
 ?>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
@@ -120,11 +116,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div><!-- /.container-fluid -->
   </div>
   <!-- button back -->
-  <div class="content-header">
+  <div class="header">
     <div class="container-fluid ml-2">
       <div class="row mb-2">
         <div class="col-sm-6">
-          <a href="users.php" class="btn btn-primary">BACK</a>
+          <a href="ticket.php" class="btn btn-primary">BACK</a>
         </div>
       </div>
     </div>
@@ -133,13 +129,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <section class="content">
     <div class="container-fluid">
       <div class="row">
-
         <div class="col-md-12">
           <div class="card card-primary">
             <div class="card-header">
               <h3 class="card-title">Create Ticket</h3>
             </div>
-            <form method="POST" id="quickForm" novalidate="novalidate" enctype="multipart/form-data">
+            <!-- <form method="POST" id="quickForm" novalidate="novalidate" enctype="multipart/form-data">
               <div class="card-body col">
                 <div class="row">
                   <div class="form-group col-sm-4 ">
@@ -147,8 +142,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input class="form-control" type="text" name="station_id" id="station_id" autocomplete="off" onkeyup="showSuggestions(this.value)" required>
                     <div id="suggestion_dropdown" class="dropdown-content"></div>
                   </div>
-
-
 
                   <div class="form-group col-sm-4">
                     <label for="station_name">Station Name</label>
@@ -160,24 +153,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   </div>
                 </div>
                 <div class="row">
-                  <div class="form-group col-sm-4">
+                  <div class="form-group col-sm-8">
                     <label for="issue_description">Issue Description</label>
-                    <textarea id="issue_description" name="issue_description" class="form-control" rows="3" placeholder="Issue Description"></textarea>
+                    <textarea id="issue_description" name="issue_description" class="form-control" rows="3" placeholder="Issue Description" required></textarea>
                   </div>
                   <div class="form-group col-sm-4">
                     <label for="issue_image">Issue Image</label>
                     <div class="input-group col-12">
                       <div class="custom-image">
-                        <!-- <input type="file" id="issue_image" name="issue_image" class="form-control"> -->
+                       
                         <input type="file" id="issue_image" name="issue_image[]" class="form-control" multiple>
-
                       </div>
                     </div>
                   </div>
 
+                </div>
+                <div class="row">
                   <div class="form-group col-sm-4">
                     <label for="issue_type">Issue Type</label>
-                    <select name="issue_type[]" class="form-control" id="choices-multiple-remove-button" placeholder="Select upto 2 tags" multiple required>
+                    <select name="issue_type[]" id="issue_type" class="form-control" id="choices-multiple-remove-button" placeholder="Select upto 2 tags" multiple required>
                       <option value="Hardware">Hardware</option>
                       <option value="Software">Software</option>
                       <option value="Network">Network</option>
@@ -185,23 +179,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                       <option value="Unassigned">Unassigned</option>
                     </select>
                   </div>
-                  <script src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.js"></script>
 
-                  <script>
-                    $(document).ready(function() {
-
-                      var multipleCancelButton = new Choices('#choices-multiple-remove-button', {
-                        removeItemButton: true,
-                        maxItemCount: 5,
-                        searchResultLimit: 3,
-                        renderChoiceLimit: 3
-                      });
-
-
-                    });
-                  </script>
-                </div>
-                <div class="row">
                   <div class="form-group col-sm-4">
                     <label for="priority">Priority</label>
                     <select name="priority" id="priority" class="form-control select2bs4" style="width: 100%;" required>
@@ -226,7 +204,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   </div>
                   <div class="form-group col-sm-4">
                     <label for="users_id">Assign</label>
-                    <select name="users_id[]" class="" id="choices-multiple-remove-button" placeholder="Select upto 2 tags" multiple required>
+                    <select name="users_id[]" class="" id="users_id" placeholder="Select upto 2 tags" multiple required>
                       <?php
                       $user_query = "SELECT users_id, users_name FROM tbl_users WHERE status = 1";
                       $user_result = $conn->query($user_query);
@@ -246,25 +224,102 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                       ?>
                     </select>
                   </div>
+                  <div class="form-group col-sm-8">
+                    <label for="comment">Comment</label>
+                    <textarea name="comment" id="comment" class="form-control" rows="3" placeholder="Comment"></textarea>
+                  </div>
                 </div>
-                <div class="form-group">
-                  <label for="comment">Comment</label>
-                  <textarea name="comment" class="form-control" rows="3" placeholder="Comment"></textarea>
+
+                <div class="">
+                  <button type="submit" name="Submit" value="Submit" class="btn btn-primary">Submit</button>
+                </div>
+              </div>
+            </form> -->
+            <form method="POST" id="quickForm" novalidate="novalidate" enctype="multipart/form-data">
+              <div class="card-body col">
+                <div class="row">
+                  <div class="form-group col-sm-4">
+                    <label for="station_id">Station ID <span class="text-danger">*</span></label>
+                    <input class="form-control" type="text" name="station_id" id="station_id" autocomplete="off" onkeyup="showSuggestions(this.value)" required>
+                    <div id="suggestion_dropdown" class="dropdown-content"></div>
+                  </div>
+
+                  <div class="form-group col-sm-4">
+                    <label for="station_name">Station Name</label>
+                    <input type="text" name="station_name" class="form-control" id="station_name" placeholder="Station Name" readonly>
+                  </div>
+                  <div class="form-group col-sm-4">
+                    <label for="station_type">Station Type</label>
+                    <input type="text" name="station_type" class="form-control" id="station_type" placeholder="Station Type" readonly>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="form-group col-sm-8">
+                    <label for="issue_description">Issue Description</label>
+                    <textarea id="issue_description" name="issue_description" class="form-control" rows="3" placeholder="Issue Description" required></textarea>
+                  </div>
+                  <div class="form-group col-sm-4">
+                    <label for="issue_image">Issue Image</label>
+                    <div class="input-group col-12">
+                      <div class="custom-image">
+                        <input type="file" id="issue_image" name="issue_image[]" class="form-control" multiple>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="form-group col-sm-4">
+                    <label for="issue_type">Issue Type</label>
+                    <select name="issue_type[]" id="issue_type" class="form-control" placeholder="Select" multiple required>
+                      <option value="">Select</option>
+                      <option value="Hardware">Hardware</option>
+                      <option value="Software">Software</option>
+                      <option value="Network">Network</option>
+                      <option value="Dispensor">Dispensor</option>
+                      <option value="Unassigned">Unassigned</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-sm-4">
+                    <label for="priority">SLA Category</label>
+                    <select name="priority" id="priority" class="form-control">
+                      <option value="">Select</option>
+                      <option value="CAT Hardware">CAT Hardware</option>
+                      <option value="CAT 1*">CAT 1*</option>
+                      <option value="CAT 2*">CAT 2*</option>
+                      <option value="CAT 3*">CAT 3*</option>
+                      <option value="CAT 4*">CAT 4*</option>
+                      <option value="CAT 4 Report*">CAT 4 Report*</option>
+                      <option value="CAT 5*">CAT 5*</option>
+                    </select>
+                  </div>
+
+                  <input type="hidden" name="ope" value="open">
+
+                  <div class="form-group col-sm-4">
+                    <label for="users_id">Assign</label>
+                    <select name="users_id[]" id="users_id" class="form-control" placeholder="Select" multiple>
+
+                      <!-- PHP code to dynamically generate options -->
+                      <?php
+                      $user_query = "SELECT users_id, users_name FROM tbl_users WHERE status = 1";
+                      $user_result = $conn->query($user_query);
+
+                      if (!$user_result) {
+                        echo "Error: " . $conn->error;
+                      } elseif ($user_result->num_rows > 0) {
+                        while ($row = $user_result->fetch_assoc()) {
+                          echo "<option value='" . $row['users_id'] . "'>" . $row['users_name'] . "</option>";
+                        }
+                      } else {
+                        echo "No users found with status 1";
+                      }
+                      ?>
+                    </select>
+                  </div>
+
                 </div>
 
-
-
-                <!-- jQuery -->
-                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-                <!-- Select2 JS -->
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-                <!-- Initialization script -->
-                <script>
-                  $(document).ready(function() {
-                    $('.select2').select2();
-                  });
-                </script>
-                <div class="card-footer">
+                <div class="">
                   <button type="submit" name="Submit" value="Submit" class="btn btn-primary">Submit</button>
                 </div>
               </div>
@@ -280,10 +335,136 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<!-- suggestion -->
+
+<!-- Initialization script -->
+
+<!-- select multiple -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var issueTypeChoices = new Choices('#issue_type', {
+      removeItemButton: true,
+      maxItemCount: 5,
+      searchResultLimit: 3,
+      renderChoiceLimit: 3
+    });
+
+    var usersIdChoices = new Choices('#users_id', {
+      removeItemButton: true,
+      maxItemCount: 5,
+      searchResultLimit: 3,
+      renderChoiceLimit: 3
+    });
+  });
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
 <!-- <script>
+  $(document).ready(function() {
+    $('#quickForm').validate({
+      rules: {
+        station_id: {
+          required: true
+        },
+        issue_description: {
+          required: true
+        },
+        'issue_type[]': {
+          required: true
+        },
+        priority: {
+          required: true
+        },
+        status: {
+          required: true
+        },
+        'users_id[]': {
+          required: true
+        }
+      },
+      messages: {
+        station_id: {
+          required: "Please enter the Station ID"
+        },
+        issue_description: {
+          required: "Please enter the Issue Description"
+        },
+        'issue_type[]': {
+          required: "Please select at least one Issue Type"
+        },
+        priority: {
+          required: "Please select a Priority"
+        },
+        status: {
+          required: "Please select a Status"
+        },
+        'users_id[]': {
+          required: "Please assign the issue to at least one user"
+        }
+      },
+      errorElement: 'span',
+      errorPlacement: function(error, element) {
+        error.addClass('invalid-feedback');
+        element.closest('.form-group').append(error);
+      },
+      highlight: function(element, errorClass, validClass) {
+        $(element).addClass('is-invalid');
+      },
+      unhighlight: function(element, errorClass, validClass) {
+        $(element).removeClass('is-invalid');
+      }
+    });
+  });
+</script> -->
+
+<!-- auto fill station -->
+<script>
+  $(document).ready(function() {
+    $('#station_id').blur(function() {
+      var station_id = $(this).val();
+      fetchStationDetails(station_id);
+    });
+
+    $('#quickForm').on('submit', function(event) {
+      if (!this.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      $(this).addClass('was-validated');
+    });
+  });
+
+  $(document).ready(function() {
+    // Fetch station details on blur (when input loses focus)
+    $('#station_id').blur(function() {
+      var station_id = $(this).val();
+      fetchStationDetails(station_id);
+    });
+  });
+
+  // Function to fetch station details using AJAX
+  function fetchStationDetails(station_id) {
+    $.ajax({
+      url: 'get_station_details.php',
+      type: 'POST',
+      data: {
+        station_id: station_id
+      },
+      dataType: 'json',
+      success: function(response) {
+        if (response.success) {
+          $('#station_name').val(response.station_name);
+          $('#station_type').val(response.station_type);
+        } else {
+          $('#station_name').val('');
+          $('#station_type').val('');
+        }
+      }
+    });
+  }
+
+  // Function to show suggestions
   function showSuggestions(str) {
     if (str == "") {
       document.getElementById("suggestion_dropdown").innerHTML = "";
@@ -299,43 +480,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       xmlhttp.send();
     }
   }
-</script> -->
-<!-- Initialization script -->
-<script>
-  $(document).ready(function() {
-    $('.select2').select2();
-  });
-</script>
-<!-- select user  -->
-<script>
-  $(document).ready(function() {
-    $('.select2bs4').select2({
-      theme: 'bootstrap4'
-    });
-  });
-</script>
-<!-- ticket close -->
-<script>
-  $(document).ready(function() {
-    $('#status').change(function() {
-      var status = $(this).val();
-      if (status === 'close') {
-        var currentDateTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
-        $('#ticket_close').val(currentDateTime);
-        $('#ticket_close_group').show();
-      } else {
-        $('#ticket_close').val('');
-        $('#ticket_close_group').hide();
-      }
-    });
 
-    // Trigger change event to set the correct visibility on page load
-    $('#status').trigger('change');
-  });
+  // Function to select a suggestion
+  function selectSuggestion(station_id) {
+    document.getElementById("station_id").value = station_id;
+    document.getElementById("suggestion_dropdown").innerHTML = "";
+    // Trigger blur event to fetch details
+    $('#station_id').blur();
+  }
 </script>
-
-<!-- auto fill station -->
-<script>
+<!-- <script>
   $(document).ready(function() {
     $('#station_id').blur(function() {
       var station_id = $(this).val();
@@ -359,10 +513,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       });
     });
   });
-</script>
 
-<!-- suggestion station id and station name -->
-<script>
+  // suggestion station id and station name 
+
   function showSuggestions(str) {
     if (str == "") {
       document.getElementById("suggestion_dropdown").innerHTML = "";
@@ -384,7 +537,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // document.getElementById("station_id").value = station_id;
     document.getElementById("suggestion_dropdown").innerHTML = "";
   }
-</script>
+</script> -->
 <style>
   .dropdown-content {
     position: absolute;

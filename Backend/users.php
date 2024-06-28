@@ -61,7 +61,7 @@ if ($result_user && $result_user->num_rows > 0) {
 $records_per_page = isset($_GET['length']) ? intval($_GET['length']) : 10;
 $current_page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $offset = ($current_page - 1) * $records_per_page;
-// Modify the query to join tbl_users with tbl_rules
+// Modify the query to join tbl_users with tbl_rules    
 $user_query = "SELECT tbl_users.*, tbl_users_rules.rules_name 
    FROM tbl_users 
    LEFT JOIN tbl_users_rules ON tbl_users.rules_id = tbl_users_rules.rules_id ORDER BY users_id DESC

@@ -58,7 +58,7 @@
   <script src="dist/js/demo.js"></script>
   <!-- dashboard demo (This is only for demo purposes) -->
   <script src="dist/js/pages/dashboard.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.js"></script>
 
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
@@ -260,7 +260,7 @@
     }
   </script>
   <!-- suggestion -->
-  <script>
+  <!-- <script>
     function showSuggestions(str) {
       if (str == "") {
         document.getElementById("suggestion_dropdown").innerHTML = "";
@@ -282,7 +282,7 @@
       document.getElementById("station_id").value = station_id;
       document.getElementById("suggestion_dropdown").innerHTML = "";
     }
-  </script>
+  </script> -->
   <!-- image -->
   <script>
     function showImage(images) {

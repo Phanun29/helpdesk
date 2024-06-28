@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
                     <form method="POST" action="">
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-sm-6">
+                                <div class="col-sm-3">
                                     <div class="form-group">
                                         <label for="rules_name">Rules Name <span class="text-danger">*</span></label>
                                         <input type="text" name="rules_name" class="form-control" id="rules_name" placeholder="Enter Name" required>
@@ -112,50 +112,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
                                 </div>
                             </div>
                             <!-- Permissions: Users -->
-                            <div class="row">
-                                <div class="col-sm-3 row">
-                                    <div class="col-6">
-                                        <label for="add_user">Add User</label>
+                            <div class="row card-footer">
+                                <div class="col-sm-12 row">
+                                    <div class="col-12">
+                                        <h4>users</h4>
                                     </div>
-                                    <div class="col-6">
-                                        <input type="checkbox" name="permissions[]" value="add_user" id="add_user">
-                                    </div>
+                                    <div class="col-sm-3 row">
+                                        <div class="col-6">
+                                            <label for="add_user">Add User</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="checkbox" name="permissions[]" value="add_user" id="add_user">
+                                        </div>
 
 
-                                </div>
-                                <div class="col-sm-3 row">
-                                    <div class="col-6">
-                                        <label for="edit_user">Edit User</label>
                                     </div>
-                                    <div class="col-6">
-                                        <input type="checkbox" name="permissions[]" value="edit_user" id="edit_user">
-                                    </div>
+                                    <div class="col-sm-3 row">
+                                        <div class="col-6">
+                                            <label for="edit_user">Edit User</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="checkbox" name="permissions[]" value="edit_user" id="edit_user">
+                                        </div>
 
 
-                                </div>
-                                <div class="col-sm-3 row">
-                                    <div class="col-6">
-                                        <label for="delete_user">Delete User</label>
                                     </div>
-                                    <div class="col-6">
-                                        <input type="checkbox" name="permissions[]" value="delete_user" id="delete_user">
-                                    </div>
+                                    <div class="col-sm-3 row">
+                                        <div class="col-6">
+                                            <label for="delete_user">Delete User</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="checkbox" name="permissions[]" value="delete_user" id="delete_user">
+                                        </div>
 
 
-                                </div>
-                                <div class="col-sm-3 row">
-                                    <div class="col-6">
-                                        <label for="list_user">List User</label>
                                     </div>
-                                    <div class="col-6">
-                                        <input type="checkbox" name="permissions[]" value="list_user" id="list_user">
-                                    </div>
+                                    <div class="col-sm-3 row">
+                                        <div class="col-6">
+                                            <label for="list_user">List User</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="checkbox" name="permissions[]" value="list_user" id="list_user">
+                                        </div>
 
 
+                                    </div>
                                 </div>
                             </div>
                             <!-- Permissions: Tickets -->
-                            <div class="row">
+                            <div class="row col-12">
                                 <div class="col-sm-3 row">
                                     <div class="col-6">
                                         <label for="add_ticket">Add Ticket</label>
@@ -197,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
                                 </div>
                             </div>
                             <!-- Permissions: Stations -->
-                            <div class="row">
+                            <div class="row col-12">
                                 <div class="col-sm-3 row">
                                     <div class="col-6">
                                         <label for="add_station">Add Station</label>
@@ -240,7 +245,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
                                 </div>
                             </div>
                             <!-- Permissions: User Rules -->
-                            <div class="row">
+                            <div class="row col-12">
                                 <div class="col-sm-3 row">
                                     <div class="col-6">
                                         <label for="add_user_rules">Add User Rules</label>
@@ -258,7 +263,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
                                     <div class="col-6">
                                         <input type="checkbox" name="permissions[]" value="edit_user_rules" id="edit_user_rules">
                                     </div>
-
 
                                 </div>
                                 <div class="col-sm-3 row">
